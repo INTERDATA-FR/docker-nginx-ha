@@ -1,0 +1,30 @@
+vrrp_script chk_nginx {
+    script "pidof nginx"
+    interval 2
+}
+
+vrrp_instance NGINX {
+    interface ${INTERFACE}
+    state ${STATE}
+    virtual_router_id ${VR_ID}
+    priority ${PRIORITY} # 101 on master, 100 on backups
+    advert_int 1
+    preempt_delay 60
+
+    virtual_ipaddress {
+        ${VIP}/${VIP_MASK}
+    }
+
+    track_interface {
+        eth0
+    }
+
+    track_script {
+        chk_nginx
+    }
+
+    authentication {
+        auth_type PASS
+        auth_pass ${PASSWORD}
+    }
+}
